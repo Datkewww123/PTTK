@@ -1,49 +1,62 @@
 import { inngest } from './client'
 import prisma from '@/lib/prisma'
 
-// Inngest Function to save user data to a database
+// 1. Đồng bộ tạo User
 export const syncUserCreation = inngest.createFunction(
   { id: 'sync-user-create' },
   { event: 'clerk/user.created' },
-  async ({ event }) => {
+  async ({ event, step }) => {
     const { data } = event
 
-    await prisma.user.create({
-      data: {
-        id: data.id,
-        email: data.email_addresses[0].email_address,
-        name: `${data.first_name} ${data.last_name}`,
-        image: data.image_url,
-      },
+    await step.run("save-user-to-db", async () => {
+      // Xử lý trường hợp first_name hoặc last_name bị null từ Clerk
+      const fullName = `${data.first_name || ""} ${data.last_name || ""}`.trim() || "New User";
+
+      return await prisma.user.create({
+        data: {
+          id: data.id,
+          email: data.email_addresses[0].email_address,
+          name: fullName,
+          image: data.image_url || "",
+        },
+      })
     })
   }
 )
-// Inngest Function to update user data in database
-export const syncUserUpdation = inngest.createFunction(
-  { id: 'sync-user-update' },
-  { event: 'clerk/user.updated' },
-  async ({ event }) => {
-    const { data } = event
 
-    await prisma.user.update({
-      where: { id: data.id },
-      data: {
-        email: data.email_addresses[0].email_address,
-        name: `${data.first_name} ${data.last_name}`,
-        image: data.image_url,
-      },
-    })
-  }
-)
-// Inngest Function to delete user from database
+// 2. Đồng bộ xóa User (Dùng deleteMany để tránh lỗi nếu User chưa tồn tại)
 export const syncUserDeletion = inngest.createFunction(
   { id: 'sync-user-delete' },
   { event: 'clerk/user.deleted' },
-  async ({ event }) => {
+  async ({ event, step }) => {
     const { data } = event
 
-    await prisma.user.delete({
-      where: { id: data.id },
+    await step.run("delete-user-from-db", async () => {
+      return await prisma.user.deleteMany({
+        where: { id: data.id },
+      })
+    })
+  }
+)
+
+// 3. Đồng bộ cập nhật User
+export const syncUserUpdation = inngest.createFunction(
+  { id: 'sync-user-update' },
+  { event: 'clerk/user.updated' },
+  async ({ event, step }) => {
+    const { data } = event
+
+    await step.run("update-user-in-db", async () => {
+      const fullName = `${data.first_name || ""} ${data.last_name || ""}`.trim() || "Updated User";
+      
+      return await prisma.user.update({
+        where: { id: data.id },
+        data: {
+          email: data.email_addresses[0].email_address,
+          name: fullName,
+          image: data.image_url,
+        },
+      })
     })
   }
 )
