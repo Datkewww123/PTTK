@@ -3,6 +3,7 @@ import { getAuth } from "@clerk/nextjs/server";
 import authSeller from "../../../../middlewares/authSeller";
 import { NextResponse } from "next/server";
 import prisma from "../../../../lib/prisma";
+export const dynamic = 'force-dynamic';
 
 // Add a new product
 export async function POST(request) {
