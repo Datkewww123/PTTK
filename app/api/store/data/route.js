@@ -1,5 +1,6 @@
 // Get store info & store products
-import prisma from "../../../../lib/prisma";    
+import prisma from "../../../../lib/prisma";
+export const dynamic = 'force-dynamic';    
 import { NextResponse } from "next/server";
 
 export async function GET(request){
