@@ -10,6 +10,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@clerk/backend": "^2.27.1",
     "@clerk/nextjs": "^6.36.3",
     "@imagekit/nodejs": "^7.1.1",
     "@neondatabase/serverless": "^0.10.4",

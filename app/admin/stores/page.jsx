@@ -1,28 +1,57 @@
 'use client'
-import { storesDummyData } from "@/assets/assets"
 import StoreInfo from "@/components/admin/StoreInfo"
 import Loading from "@/components/Loading"
+import { useUser, useAuth } from "@clerk/nextjs"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
+import axios from "axios"
 
 export default function AdminStores() {
-
+    const { user } = useUser()
+    const { getToken, isLoaded } = useAuth()
     const [stores, setStores] = useState([])
     const [loading, setLoading] = useState(true)
+    const [processingStoreId, setProcessingStoreId] = useState(null)
 
     const fetchStores = async () => {
-        setStores(storesDummyData)
-        setLoading(false)
+        try {
+            setLoading(true)
+            const token = await getToken()
+            const { data } = await axios.get('/api/admin/stores', {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            setStores(data.stores || [])
+        } catch (error) {
+            toast.error(error?.response?.data?.error || error.message)
+        } finally {
+            setLoading(false)
+        }
     }
 
     const toggleIsActive = async (storeId) => {
-        // Logic to toggle the status of a store
+        if (!storeId) throw new Error('Missing storeId')
+        try {
+            setProcessingStoreId(storeId)
+            const token = await getToken()
+            const { data } = await axios.post('/api/admin/toggle-store', { storeId }, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
 
+            // update local state
+            setStores(prev => prev.map(s => s.id === storeId ? { ...s, isActive: !s.isActive } : s))
+            return data
+        } catch (error) {
+            throw new Error(error?.response?.data?.error || error.message)
+        } finally {
+            setProcessingStoreId(null)
+        }
     }
 
     useEffect(() => {
-        fetchStores()
-    }, [])
+        // wait until clerk auth is loaded and user is available
+        if (!isLoaded) return
+        if (user) fetchStores()
+    }, [user, isLoaded])
 
     return !loading ? (
         <div className="text-slate-500 mb-28">
@@ -39,7 +68,16 @@ export default function AdminStores() {
                             <div className="flex items-center gap-3 pt-2 flex-wrap">
                                 <p>Active</p>
                                 <label className="relative inline-flex items-center cursor-pointer text-gray-900">
-                                    <input type="checkbox" className="sr-only peer" onChange={() => toast.promise(toggleIsActive(store.id), { loading: "Updating data..." })} checked={store.isActive} />
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        onChange={() => {
+                                            if (!confirm('Toggle store active status?')) return
+                                            toast.promise(toggleIsActive(store.id), { loading: 'Updating...', success: 'Updated', error: 'Failed to update' })
+                                        }}
+                                        checked={store.isActive}
+                                        disabled={processingStoreId === store.id}
+                                    />
                                     <div className="w-9 h-5 bg-slate-300 rounded-full peer peer-checked:bg-green-600 transition-colors duration-200"></div>
                                     <span className="dot absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-4"></span>
                                 </label>

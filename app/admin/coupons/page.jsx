@@ -3,11 +3,15 @@ import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import toast from "react-hot-toast"
 import { DeleteIcon } from "lucide-react"
+import axios from "axios"
+import { useAuth } from "@clerk/nextjs"
+import Loading from "@/components/Loading"
 import { couponDummyData } from "@/assets/assets"
 
 export default function AdminCoupons() {
 
     const [coupons, setCoupons] = useState([])
+    const [loading, setLoading] = useState(true)
 
     const [newCoupon, setNewCoupon] = useState({
         code: '',
@@ -19,30 +23,80 @@ export default function AdminCoupons() {
         expiresAt: new Date()
     })
 
+    const { getToken, isLoaded } = useAuth()
+
     const fetchCoupons = async () => {
-        setCoupons(couponDummyData)
-    }
+  try {
+    setLoading(true)
+    const token = await getToken()
+    const { data } = await axios.get('/api/admin/coupons', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    setCoupons(data.coupons || [])
+  } catch (error) {
+    toast.error(error?.response?.data?.error || error.message)
+  } finally {
+    setLoading(false)
+  }
+}
 
     const handleAddCoupon = async (e) => {
-        e.preventDefault()
-        // Logic to add a coupon
+  e.preventDefault()
+  try {
+    const token = await getToken()
 
-
+    const payload = {
+      ...newCoupon,
+      discount: Number(newCoupon.discount),
+      expiresAt: new Date(newCoupon.expiresAt)
     }
+
+    const { data } = await axios.post('/api/admin/coupons',{ coupon: payload }, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    toast.success(data.message)
+    // reset
+    setNewCoupon({
+        code: '',
+        description: '',
+        discount: '',
+        forNewUser: false,
+        forMember: false,
+        isPublic: false,
+        expiresAt: new Date()
+    })
+    await fetchCoupons()
+  } catch (error) {
+     toast.error(error?.response?.data?.error || error.message)
+  }
+}
 
     const handleChange = (e) => {
         setNewCoupon({ ...newCoupon, [e.target.name]: e.target.value })
     }
 
-    const deleteCoupon = async (code) => {
-        // Logic to delete a coupon
+ const deleteCoupon = async (code) => {
+    try {
+        const confirm = window.confirm("Are you sure you want to delete this coupon?")
+        if(!confirm) return;
 
-
+        const token = await getToken()
+        await axios.delete(`/api/admin/coupons?code=${code}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        await fetchCoupons()
+        toast.success("Coupon deleted successfully")
+    } catch (error) {
+        toast.error(error?.response?.data?.error || error.message)
     }
+}
 
     useEffect(() => {
+        if (!isLoaded) return
         fetchCoupons();
-    }, [])
+    }, [isLoaded])
+
+    if (!isLoaded || loading) return <Loading />
 
     return (
         <div className="text-slate-500 mb-40">
@@ -118,7 +172,7 @@ export default function AdminCoupons() {
                                     <td className="py-3 px-4 font-medium text-slate-800">{coupon.code}</td>
                                     <td className="py-3 px-4 text-slate-800">{coupon.description}</td>
                                     <td className="py-3 px-4 text-slate-800">{coupon.discount}%</td>
-                                    <td className="py-3 px-4 text-slate-800">{format(coupon.expiresAt, 'yyyy-MM-dd')}</td>
+                                    <td className="py-3 px-4 text-slate-800">{format(new Date(coupon.expiresAt), 'yyyy-MM-dd')}</td>
                                     <td className="py-3 px-4 text-slate-800">{coupon.forNewUser ? 'Yes' : 'No'}</td>
                                     <td className="py-3 px-4 text-slate-800">{coupon.forMember ? 'Yes' : 'No'}</td>
                                     <td className="py-3 px-4 text-slate-800">
