@@ -2,6 +2,7 @@ import authAdmin from "@/middlewares/authAdmin";
 import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { inngest } from "@/inngest/client";
 // Add new coupon
 export async function POST(request) {
   try {
@@ -16,7 +17,20 @@ export async function POST(request) {
     // Chuyển mã coupon thành chữ in hoa trước khi lưu
     coupon.code = coupon.code.toUpperCase()
 
-    await prisma.coupon.create({ data: coupon })
+    const createdCoupon = await prisma.coupon.create({ data: coupon });
+
+    // Send an Inngest event (non-blocking if it fails)
+    try {
+      await inngest.send({
+        name: 'app/coupon.expired',
+        data: {
+          code: createdCoupon.code,
+          expiresAt: createdCoupon.expiresAt ? createdCoupon.expiresAt.toISOString() : null,
+        },
+      })
+    } catch (err) {
+      console.error('INNGEST_SEND_ERROR', err)
+    }
 
     return NextResponse.json({ message: "Coupon added successfully" })
 
