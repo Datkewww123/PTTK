@@ -4,6 +4,10 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 const isPublicRoute = createRouteMatcher(['/', '/sign-in(.*)', '/sign-up(.*)']);
 
 export default clerkMiddleware(async (auth, request) => {
+  // Allow Inngest webhook endpoint to be called without Clerk auth
+  const pathname = request.nextUrl?.pathname || new URL(request.url).pathname;
+  if (pathname.startsWith('/api/inngest')) return;
+
   // 2. Kiểm tra nếu không phải route công khai thì bảo vệ
   if (!isPublicRoute(request)) {
     // SỬA TẠI ĐÂY: auth ở đây là object, sử dụng auth.protect() trực tiếp

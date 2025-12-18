@@ -1,5 +1,6 @@
 // SAI (Bản cũ): import { auth } from "@clerk/nextjs";
 // ĐÚNG (Bản mới):
+export const dynamic = 'force-dynamic';
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import authAdmin from "@/middlewares/authAdmin";
