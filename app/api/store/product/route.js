@@ -1,4 +1,4 @@
-import imagekit from "@/lib/imagekit";
+import imagekit from "@/configs/imageKit"
 import { getAuth } from "@clerk/nextjs/server";
 import authSeller from "../../../../middlewares/authSeller";
 import { NextResponse } from "next/server";
