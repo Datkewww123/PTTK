@@ -14,16 +14,29 @@ export async function GET(request){
     }
 
     // Get store info and inStock products with ratings
-    const store = await prisma.store.findUnique({
-      where: {username, isActive: true},
-      include: {Product: {include: {rating: true}}}
+    const store = await prisma.store.findFirst({
+      where: { username, isActive: true },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        description: true,
+        email: true,
+        contact: true,
+        status: true,
+        isActive: true,
+        Product: {
+          where: { inStock: true },
+          include: { rating: true }
+        }
+      }
     })
 
-    if(!store){
-      return NextResponse.json({error: "store not found"}, { status: 400 })
+    if (!store) {
+      return NextResponse.json({ error: "store not found" }, { status: 404 })
     }
 
-    return NextResponse.json({store})
+    return NextResponse.json({ store })
 
   } catch (error) {
     console.error(error);

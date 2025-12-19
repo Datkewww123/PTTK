@@ -7,14 +7,26 @@ export const dynamic = 'force-dynamic';
 // Get Dashboard Data for Seller ( total orders, total earnings, total products )
 export async function GET(request){
   try {
-    const { userId } = getAuth(request)
+    let { userId } = getAuth(request)
+
+    // Dev bypass: allow using header x-dev-userid when running locally (host includes localhost) OR DEV_BYPASS_SELLER=true
+    const devUser = request.headers.get('x-dev-userid')
+    if (!userId && devUser && (process.env.DEV_BYPASS_SELLER === 'true' || request.headers.get('host')?.includes('localhost'))) {
+      userId = devUser
+      console.info('Dev bypass used for userId:', devUser)
+    }
+
     const storeId = await authSeller(userId)
 
+    if (!storeId) {
+      return NextResponse.json({ error: 'not authorized' }, { status: 401 })
+    }
+
     // Get all orders for seller
-    const orders = await prisma.order.findMany({where: {storeId}})
+    const orders = await prisma.order.findMany({ where: { storeId } })
 
     // Get all products with ratings for seller
-    const products = await prisma.product.findMany({where: {storeId}})
+    const products = await prisma.product.findMany({ where: { storeId } })
 
     const ratings = await prisma.rating.findMany({
       where: {productId: {in: products.map(product => product.id)}},

@@ -5,7 +5,8 @@ import { useEffect, useState } from "react"
 import { MailIcon, MapPinIcon } from "lucide-react"
 import Loading from "@/components/Loading"
 import Image from "next/image"
-import { dummyStoreData, productDummyData } from "@/assets/assets"
+import { assets } from '@/assets/assets'
+import axios from 'axios'
 
 export default function StoreShop() {
 
@@ -15,24 +16,29 @@ export default function StoreShop() {
     const [loading, setLoading] = useState(true)
 
     const fetchStoreData = async () => {
-        setStoreInfo(dummyStoreData)
-        setProducts(productDummyData)
+        try {
+            const { data } = await axios.get(`/api/store/data?username=${encodeURIComponent(username)}`)
+            setStoreInfo(data.store)
+            setProducts(data.store?.Product || [])
+        } catch (err) {
+            console.error(err)
+        }
         setLoading(false)
     }
 
     useEffect(() => {
         fetchStoreData()
-    }, [])
+    }, [username])
 
     return !loading ? (
         <div className="min-h-[70vh] mx-6">
 
             {/* Store Info Banner */}
-            {storeInfo && (
+            {storeInfo ? (
                 <div className="max-w-7xl mx-auto bg-slate-50 rounded-xl p-6 md:p-10 mt-6 flex flex-col md:flex-row items-center gap-6 shadow-xs">
                     <Image
-                        src={storeInfo.logo}
-                        alt={storeInfo.name}
+                        src={storeInfo.logo || assets.gs_logo}
+                        alt={storeInfo.name || 'Store'}
                         className="size-32 sm:size-38 object-cover border-2 border-slate-100 rounded-md"
                         width={200}
                         height={200}
@@ -54,13 +60,17 @@ export default function StoreShop() {
                         </div>
                     </div>
                 </div>
+            ) : (
+                <div className="max-w-7xl mx-auto mt-12 text-center text-slate-500">Store not found or not active.</div>
             )}
 
             {/* Products */}
             <div className=" max-w-7xl mx-auto mb-40">
                 <h1 className="text-2xl mt-12">Shop <span className="text-slate-800 font-medium">Products</span></h1>
                 <div className="mt-5 grid grid-cols-2 sm:flex flex-wrap gap-6 xl:gap-12 mx-auto">
-                    {products.map((product) => <ProductCard key={product.id} product={product} />)}
+                    {products.length > 0 ? products.map((product) => <ProductCard key={product.id} product={product} />) : (
+                        <div className="text-center text-slate-500 mt-8">No products available in this store.</div>
+                    )}
                 </div>
             </div>
         </div>

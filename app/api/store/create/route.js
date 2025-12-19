@@ -8,6 +8,13 @@ export async function POST(request) {
   try {
     const { userId } = getAuth(request);
 
+    const authHeader = request.headers.get('authorization') || null
+
+    if (!userId) {
+      console.info('Create store: unauthenticated request', { authHeaderPresent: Boolean(authHeader) })
+      return NextResponse.json({ error: 'not_authenticated' }, { status: 401 })
+    }
+
     // Get the data from the form
     const formData = await request.formData();
 
@@ -16,42 +23,73 @@ export async function POST(request) {
     const description = formData.get("description");
     const email = formData.get("email");
     const contact = formData.get("contact");
-    const address = formData.get("address");
-    const image = formData.get("image");
-if(!name|| !username|| ! description || !email ||!contact ||!address||! image){
-    return NextResponse.json({error:"missing some info"},{status:400})
-}
-const store = await prisma.store.findFirst({
-    where:{userId: userId}
-})
+    const image = formData.get("image"); // optional
+
+    // basic validation (image is optional in schema)
+    if (!name || !username || !description || !email || !contact) {
+      console.info('Create store: validation failed', { userId, fields: Array.from(formData.keys()) })
+      return NextResponse.json({ error: "missing some info", fields: Array.from(formData.keys()) }, { status: 400 })
+    }
+
+    // Ensure a corresponding User row exists in DB (avoid foreign-key failures)
+    let clerkUser = null
+    try {
+      const { clerkClient } = await import('@clerk/nextjs/server')
+      clerkUser = await clerkClient.users.getUser(userId)
+    } catch (uErr) {
+      console.warn('Could not fetch Clerk user for upsert', uErr)
+    }
+
+    await prisma.user.upsert({
+      where: { id: userId },
+      update: {},
+      create: {
+        id: userId,
+        name: clerkUser ? (`${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() || clerkUser.username || 'Unknown') : 'Unknown',
+        email: clerkUser?.emailAddresses?.[0]?.emailAddress || email || '',
+        image: clerkUser?.profileImageUrl || ''
+      }
+    })
+
+    // only select safe fields (avoid touching missing columns like `logo` in older DBs)
+    const store = await prisma.store.findFirst({ where: { userId: userId }, select: { id: true, status: true } })
 
 if(store){
     return NextResponse.json({status: store.status})
-}
+} 
 //check username
 const isUsernametaken = await prisma.store.findFirst({
-    where: {username: username.toLowerCase()}
+    where: { username: username.toLowerCase() },
+    select: { id: true }
 })
 if(isUsernametaken){
     return NextResponse.json({error:"username is already taken"},{status: 400})
+} 
+// image upload to imagekit (optional - not stored on Store model)
+let optimizedImage = null;
+if (image) {
+  try {
+    const buffer = Buffer.from(await image.arrayBuffer());
+
+    const response = await imagekit.upload({
+      file: buffer,
+      fileName: image.name,
+      folder: "logos"
+    });
+
+    optimizedImage = imagekit.url({
+      path: response.filePath,
+      transformation: [
+        { quality: "auto" },
+        { format: "webp" },
+        { width: "512" }
+      ]
+    });
+  } catch (upErr) {
+    console.warn('ImageKit upload failed, continuing without logo', upErr)
+  }
 }
-// image upload to imagekit
-const buffer = Buffer.from(await image.arrayBuffer());
 
-const response = await imagekit.upload({
-  file: buffer,
-  fileName: image.name,
-  folder: "logos"
-});
-
-const optimizedImage = imagekit.url({
-  path: response.filePath,
-  transformation: [
-    { quality: "auto" },
-    { format: "webp" },
-    { width: "512" }
-  ]
-});
 const newStore = await prisma.store.create({
   data: {
     userId,
@@ -59,21 +97,24 @@ const newStore = await prisma.store.create({
     description,
     username: username.toLowerCase(),
     email,
-    contact,
-    address,
-    logo: optimizedImage
+    contact
   }
 })
 
 // link store to user
 await prisma.user.update({
   where: { id: userId },
-  data: {store:{connect:{id: newStore.id}}}
+  data: { store: { connect: { id: newStore.id } } }
 })
-return NextResponse.json({message:"applied, waiting for approval"})
+return NextResponse.json({ message: "applied, waiting for approval" })
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({message:error.code||error.message},{status:400})
+    const errBody = {
+      error: error?.message || 'unknown_error',
+      code: error?.code || 'UNKNOWN_ERROR',
+      meta: error?.meta || null
+    }
+    console.error('Create store failed', { err: errBody })
+    return NextResponse.json(errBody, { status: 400 })
   }
 }
 
@@ -82,13 +123,15 @@ export async function GET(request) {
   try {
       const { userId } = getAuth(request);
     const store = await prisma.store.findFirst({
-    where:{userId: userId}
+      where: { userId: userId },
+      select: { id: true, status: true }
     })
 
-    if(store){
-    return NextResponse.json({status: store.status})
+    if (store) {
+      return NextResponse.json({ status: store.status })
     }
-    return NextResponse.json({status: "Not registered"})    
+
+    return NextResponse.json({ status: "Not registered" })    
   } 
   
   

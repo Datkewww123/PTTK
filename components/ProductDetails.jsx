@@ -18,7 +18,7 @@ const ProductDetails = ({ product }) => {
 
     const router = useRouter()
 
-    const [mainImage, setMainImage] = useState(product.images[0]);
+    const [mainImage, setMainImage] = useState(product?.images?.[0] || assets.product_img1);
 
     const addToCartHandler = () => {
         dispatch(addToCart({ productId }))

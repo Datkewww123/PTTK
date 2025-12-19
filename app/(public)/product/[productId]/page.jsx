@@ -3,25 +3,27 @@ import ProductDescription from "@/components/ProductDescription";
 import ProductDetails from "@/components/ProductDetails";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import axios from 'axios'
 
 export default function Product() {
 
     const { productId } = useParams();
     const [product, setProduct] = useState();
-    const products = useSelector(state => state.product.list);
 
     const fetchProduct = async () => {
-        const product = products.find((product) => product.id === productId);
-        setProduct(product);
+        try {
+            const { data } = await axios.get('/api/products')
+            const product = data.products.find((p) => p.id === productId)
+            setProduct(product)
+        } catch (err) {
+            console.error(err)
+        }
     }
 
     useEffect(() => {
-        if (products.length > 0) {
-            fetchProduct()
-        }
+        fetchProduct()
         scrollTo(0, 0)
-    }, [productId,products]);
+    }, [productId]);
 
     return (
         <div className="mx-6">

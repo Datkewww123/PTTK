@@ -3,7 +3,8 @@ import { useEffect, useState } from "react"
 import { toast } from "react-hot-toast"
 import Image from "next/image"
 import Loading from "@/components/Loading"
-import { productDummyData } from "@/assets/assets"
+import axios from 'axios'
+import { useAuth } from "@clerk/nextjs"
 
 export default function StoreManageProducts() {
 
@@ -11,16 +12,28 @@ export default function StoreManageProducts() {
 
     const [loading, setLoading] = useState(true)
     const [products, setProducts] = useState([])
+    const { getToken } = useAuth()
 
     const fetchProducts = async () => {
-        setProducts(productDummyData)
+        try {
+            const token = await getToken()
+            const { data } = await axios.get('/api/store/product', { headers: { Authorization: `Bearer ${token}` } })
+            setProducts(data.products || [])
+        } catch (err) {
+            toast.error(err?.response?.data?.error || err.message)
+        }
         setLoading(false)
     }
 
     const toggleStock = async (productId) => {
-        // Logic to toggle the stock of a product
-
-
+        try {
+            const token = await getToken()
+            await axios.post('/api/store/stock-toggle', { productId }, { headers: { Authorization: `Bearer ${token}` } })
+            setProducts(prev => prev.map(p => p.id === productId ? { ...p, inStock: !p.inStock } : p))
+            toast.success('Product updated')
+        } catch (err) {
+            toast.error(err?.response?.data?.error || err.message)
+        }
     }
 
     useEffect(() => {
@@ -47,7 +60,7 @@ export default function StoreManageProducts() {
                         <tr key={product.id} className="border-t border-gray-200 hover:bg-gray-50">
                             <td className="px-4 py-3">
                                 <div className="flex gap-2 items-center">
-                                    <Image width={40} height={40} className='p-1 shadow rounded cursor-pointer' src={product.images[0]} alt="" />
+                                    <Image width={40} height={40} className='p-1 shadow rounded cursor-pointer' src={product?.images?.[0] || assets.product_img1} alt={product?.name || ''} />
                                     {product.name}
                                 </div>
                             </td>

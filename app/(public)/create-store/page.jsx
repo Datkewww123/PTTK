@@ -65,8 +65,17 @@ const fetchSellerStatus = async () => {
     const onSubmitHandler = async (e) => {
         e.preventDefault()
         if(!user){
-            return toast('please login to continue')
+            return toast.error('Please login to continue')
         }
+
+        // Client-side validation (address and image are optional)
+        const required = ['username','name','description','email','contact']
+        for (const field of required) {
+          if (!storeInfo[field] || storeInfo[field].toString().trim() === '') {
+            return toast.error('Please fill all required fields')
+          }
+        }
+
         try{
             const token = await getToken()
             const formData = new FormData()
@@ -80,9 +89,13 @@ const fetchSellerStatus = async () => {
             const{data} = await axios.post('/api/store/create', formData, {headers:{Authorization: `Bearer ${token}`}})
             toast.success(data.message)
             await fetchSellerStatus()
+            return data
         }
-        catch(error){}
-        toast.error(error?.response?.data?.error || error.message)
+        catch(error){
+            console.error('Create store failed', error)
+            toast.error(error?.response?.data?.error || error.message || 'Failed to submit')
+            throw error
+        }
 
     }
 

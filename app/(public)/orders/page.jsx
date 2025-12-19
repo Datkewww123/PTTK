@@ -2,15 +2,43 @@
 import PageTitle from "@/components/PageTitle"
 import { useEffect, useState } from "react";
 import OrderItem from "@/components/OrderItem";
-import { orderDummyData } from "@/assets/assets";
+import Loading from "@/components/Loading";
+import { useUser } from "@clerk/nextjs";
 
 export default function Orders() {
 
     const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const { user, isLoaded } = useUser();
 
     useEffect(() => {
-        setOrders(orderDummyData)
-    }, []);
+        const fetchOrders = async () => {
+            if(!isLoaded) return;
+            if(!user){
+                setLoading(false);
+                setError('Please log in to view orders');
+                return;
+            }
+            try{
+                const res = await fetch('/api/orders');
+                const data = await res.json();
+                if(res.ok){
+                    setOrders(data.orders || []);
+                } else {
+                    setError(data.error || 'Failed to fetch orders');
+                }
+            } catch(err){
+                setError(err.message || 'Failed to fetch orders');
+            }
+            setLoading(false);
+        }
+        fetchOrders();
+    }, [isLoaded, user]);
+
+    if(loading) return <div className="min-h-[70vh] flex items-center justify-center"><Loading /></div>;
+
+    if(error) return <div className="min-h-[70vh] mx-6 flex items-center justify-center text-red-500">{error}</div>;
 
     return (
         <div className="min-h-[70vh] mx-6">

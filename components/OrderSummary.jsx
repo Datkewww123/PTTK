@@ -21,13 +21,74 @@ const OrderSummary = ({ totalPrice, items }) => {
 
     const handleCouponCode = async (event) => {
         event.preventDefault();
-        
+        if(!couponCodeInput || !couponCodeInput.trim()){
+            toast.error('Please enter a coupon code')
+            return
+        }
+        try{
+            const res = await fetch(`/api/coupons/validate?code=${encodeURIComponent(couponCodeInput.trim())}`)
+            const data = await res.json()
+            if(res.ok && data.coupon){
+                setCoupon(data.coupon)
+                toast.success('Coupon applied')
+            } else {
+                throw new Error(data.error || 'Invalid coupon')
+            }
+        } catch (err){
+            toast.error(err.message || 'Failed to validate coupon')
+        }
     }
 
     const handlePlaceOrder = async (e) => {
         e.preventDefault();
 
-        router.push('/orders')
+        if(!selectedAddress){
+            toast.error('Please select an address')
+            return
+        }
+
+        const payload = {
+            addressId: selectedAddress.id,
+            items: items.map(i => ({ id: i.id, quantity: i.quantity })),
+            couponCode: coupon ? coupon.code : couponCodeInput
+        }
+
+        if(paymentMethod === 'STRIPE'){
+            try{
+                const res = await fetch('/api/stripe/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                const data = await res.json()
+                if(data.url){
+                    // Redirect to Stripe Checkout
+                    window.location.href = data.url
+                } else {
+                    throw new Error(data.error || 'Checkout failed')
+                }
+            } catch (err) {
+                toast.error(err.message || 'Checkout failed')
+            }
+            return
+        }
+
+        // fallback: COD flow - create order via API then redirect to orders page
+        try{
+            const res = await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...payload, paymentMethod: 'COD' })
+            })
+            const data = await res.json()
+            if(data.message){
+                router.push('/orders')
+            } else {
+                throw new Error(data.error || 'Order failed')
+            }
+        } catch (err) {
+            toast.error(err.message || 'Order failed')
+        }
     }
 
     return (

@@ -39,210 +39,10 @@ export const dummyRatingsData = [
     { id: "rat_6", rating: 5.0, review: "This product is great. I love it!  You made it so simple. My new site is so much faster and easier to work with than my old site.", user: { name: 'Bessie Cooper', image: profile_pic3 }, productId: "prod_6", createdAt: 'Sat Jul 19 2025 14:51:25 GMT+0530 (India Standard Time)', updatedAt: 'Sat Jul 19 2025 14:51:25 GMT+0530 (India Standard Time)', product: { name: 'Bluetooth Speakers', category:'Electronics', id:'prod_1'} },
 ]
 
-export const dummyStoreData = {
-    id: "store_1",
-    userId: "user_1",
-    name: "Happy Shop",
-    description: "At Happy Shop, we believe shopping should be simple, smart, and satisfying. Whether you're hunting for the latest fashion trends, top-notch electronics, home essentials, or unique lifestyle products — we've got it all under one digital roof.",
-    username: "happyshop",
-    address: "3rd Floor, Happy Shop , New Building, 123 street , c sector , NY, US",
-    status: "approved",
-    isActive: true,
-    logo: happy_store,
-    email: "happyshop@example.com",
-    contact: "+0 1234567890",
-    createdAt: "2025-09-04T09:04:16.189Z",
-    updatedAt: "2025-09-04T09:04:44.273Z",
-    user: {
-        id: "user_31dOriXqC4TATvc0brIhlYbwwc5",
-        name: "Great Stack",
-        email: "user.greatstack@gmail.com",
-        image: gs_logo,
-    }
-}
+// dummyStoreData removed — fetch store info from the API: GET /api/store/data?username=<username>
 
-export const productDummyData = [
-    {
-        id: "prod_1",
-        name: "Modern table lamp",
-        description: "Modern table lamp with a sleek design. It's perfect for any room. It's made of high-quality materials and comes with a lifetime warranty. Enhance your audio experience with this earbuds. Indulge yourself in a world of pure sound with 50 hours of uninterrupted playtime. Equipped with the cutting-edge Zen Mode Tech ENC and BoomX Tech, prepare to be enthralled by a symphony of crystal-clear melodies.",
-        mrp: 40,
-        price: 29,
-        images: [product_img1, product_img2, product_img3, product_img4],
-        category: "Decoration",
-        storeId: "seller_1",
-        inStock: true,
-        store: dummyStoreData,
-        rating: dummyRatingsData,
-        createdAt: 'Sat Jul 29 2025 14:51:25 GMT+0530 (India Standard Time)',
-        updatedAt: 'Sat Jul 29 2025 14:51:25 GMT+0530 (India Standard Time)',
-    },
-    {
-        id: "prod_2",
-        name: "Smart speaker gray",
-        description: "Smart speaker with a sleek design. It's perfect for any room. It's made of high-quality materials and comes with a lifetime warranty.",
-        mrp: 50,
-        price: 29,
-        images: [product_img2],
-        storeId: "seller_1",
-        inStock: true,
-        store: dummyStoreData,
-        category: "Speakers",
-        rating: dummyRatingsData,
-        createdAt: 'Sat Jul 28 2025 14:51:25 GMT+0530 (India Standard Time)',
-        updatedAt: 'Sat Jul 28 2025 14:51:25 GMT+0530 (India Standard Time)',
-    },
-    {
-        id: "prod_3",
-        name: "Smart watch white",
-        description: "Smart watch with a sleek design. It's perfect for any room. It's made of high-quality materials and comes with a lifetime warranty.",
-        mrp: 60,
-        price: 29,
-        images: [product_img3],
-        storeId: "seller_1",
-        inStock: true,
-        store: dummyStoreData,
-        category: "Watch",
-        rating: dummyRatingsData,
-        createdAt: 'Sat Jul 27 2025 14:51:25 GMT+0530 (India Standard Time)',
-        updatedAt: 'Sat Jul 27 2025 14:51:25 GMT+0530 (India Standard Time)',
-    },
-    {
-        id: "prod_4",
-        name: "Wireless headphones",
-        description: "Wireless headphones with a sleek design. It's perfect for any room. It's made of high-quality materials and comes with a lifetime warranty.",
-        mrp: 70,
-        price: 29,
-        images: [product_img4],
-        storeId: "seller_1",
-        inStock: true,
-        store: dummyStoreData,
-        category: "Headphones",
-        rating: dummyRatingsData,
-        createdAt: 'Sat Jul 26 2025 14:51:25 GMT+0530 (India Standard Time)',
-        updatedAt: 'Sat Jul 26 2025 14:51:25 GMT+0530 (India Standard Time)',
-    },
-    {
-        id: "prod_5",
-        name: "Smart watch black",
-        description: "Smart watch with a sleek design. It's perfect for any room. It's made of high-quality materials and comes with a lifetime warranty.",
-        mrp: 49,
-        price: 29,
-        images: [product_img5],
-        storeId: "seller_1",
-        inStock: true,
-        store: dummyStoreData,
-        category: "Watch",
-        rating: [...dummyRatingsData,...dummyRatingsData],
-        createdAt: 'Sat Jul 25 2025 14:51:25 GMT+0530 (India Standard Time)',
-        updatedAt: 'Sat Jul 25 2025 14:51:25 GMT+0530 (India Standard Time)',
-    },
-    {
-        id: "prod_6",
-        name: "Security Camera",
-        description: "Security Camera with a sleek design. It's perfect for any room. It's made of high-quality materials and comes with a lifetime warranty.",
-        mrp: 59,
-        price: 29,
-        images: [product_img6],
-        storeId: "seller_1",
-        inStock: true,
-        store: dummyStoreData,
-        category: "Camera",
-        rating: [...dummyRatingsData,...dummyRatingsData],
-        createdAt: 'Sat Jul 25 2025 14:51:25 GMT+0530 (India Standard Time)',
-        updatedAt: 'Sat Jul 25 2025 14:51:25 GMT+0530 (India Standard Time)',
-    },
-    {
-        id: "prod_7",
-        name: "Smart Pen for iPad",
-        description: "Smart Pen for iPad with a sleek design. It's perfect for any room. It's made of high-quality materials and comes with a lifetime warranty.",
-        mrp: 89,
-        price: 29,
-        images: [product_img7],
-        storeId: "seller_1",
-        inStock: true,
-        store: dummyStoreData,
-        category: "Pen",
-        rating: [...dummyRatingsData,...dummyRatingsData],
-        createdAt: 'Sat Jul 24 2025 14:51:25 GMT+0530 (India Standard Time)',
-        updatedAt: 'Sat Jul 24 2025 14:51:25 GMT+0530 (India Standard Time)',
-    },
-    {
-        id: "prod_8",
-        name: "Home Theater",
-        description: "Home Theater with a sleek design. It's perfect for any room. It's made of high-quality materials and comes with a lifetime warranty.",
-        mrp: 99,
-        price: 29,
-        images: [product_img8],
-        storeId: "seller_1",
-        inStock: true,
-        store: dummyStoreData,
-        category: "Theater",
-        rating: [...dummyRatingsData,...dummyRatingsData],
-        createdAt: 'Sat Jul 23 2025 14:51:25 GMT+0530 (India Standard Time)',
-        updatedAt: 'Sat Jul 23 2025 14:51:25 GMT+0530 (India Standard Time)',
-    },
-    {
-        id: "prod_9",
-        name: "Apple Wireless Earbuds",
-        description: "Apple Wireless Earbuds with a sleek design. It's perfect for any room. It's made of high-quality materials and comes with a lifetime warranty.",
-        mrp: 89,
-        price: 29,
-        images: [product_img9],
-        storeId: "seller_1",
-        inStock: true,
-        store: dummyStoreData,
-        category: "Earbuds",
-        rating: [...dummyRatingsData,...dummyRatingsData],
-        createdAt: 'Sat Jul 22 2025 14:51:25 GMT+0530 (India Standard Time)',
-        updatedAt: 'Sat Jul 22 2025 14:51:25 GMT+0530 (India Standard Time)',
-    },
-    {
-        id: "prod_10",
-        name: "Apple Smart Watch",
-        description: "Apple Smart Watch with a sleek design. It's perfect for any room. It's made of high-quality materials and comes with a lifetime warranty.",
-        mrp: 179,
-        price: 29,
-        images: [product_img10],
-        storeId: "seller_1",
-        inStock: true,
-        store: dummyStoreData,
-        category: "Watch",
-        rating: [...dummyRatingsData,...dummyRatingsData],
-        createdAt: 'Sat Jul 21 2025 14:51:25 GMT+0530 (India Standard Time)',
-        updatedAt: 'Sat Jul 21 2025 14:51:25 GMT+0530 (India Standard Time)',
-    },
-    {
-        id: "prod_11",
-        name: "RGB Gaming Mouse",
-        description: "RGB Gaming Mouse with a sleek design. It's perfect for any room. It's made of high-quality materials and comes with a lifetime warranty.",
-        mrp: 39,
-        price: 29,
-        images: [product_img11],
-        storeId: "seller_1",
-        inStock: true,
-        store: dummyStoreData,
-        category: "Mouse",
-        rating: [...dummyRatingsData,...dummyRatingsData],
-        createdAt: 'Sat Jul 20 2025 14:51:25 GMT+0530 (India Standard Time)',
-        updatedAt: 'Sat Jul 20 2025 14:51:25 GMT+0530 (India Standard Time)',
-    },
-    {
-        id: "prod_12",
-        name: "Smart Home Cleaner",
-        description: "Smart Home Cleaner with a sleek design. It's perfect for any room. It's made of high-quality materials and comes with a lifetime warranty.",
-        mrp: 199,
-        price: 29,
-        images: [product_img12],
-        storeId: "seller_1",
-        inStock: true,
-        store: dummyStoreData,
-        category: "Cleaner",
-        rating: [...dummyRatingsData,...dummyRatingsData],
-        createdAt: 'Sat Jul 19 2025 14:51:25 GMT+0530 (India Standard Time)',
-        updatedAt: 'Sat Jul 19 2025 14:51:25 GMT+0530 (India Standard Time)',
-    }
-];
+// productDummyData removed — use GET /api/products or GET /api/store/product for sellers
+// (Removed static product objects to rely on runtime API data.)
 
 export const ourSpecsData = [
     { title: "Free Shipping", description: "Enjoy fast, free delivery on every order no conditions, just reliable doorstep.", icon: SendIcon, accent: '#05DF72' },
@@ -292,14 +92,10 @@ export const orderDummyData = [
         paymentMethod: "COD",
         createdAt: "2025-08-22T09:15:03.929Z",
         updatedAt: "2025-08-22T09:15:50.723Z",
-        isCouponUsed: true,
-        coupon: dummyRatingsData[2],
         orderItems: [
-            { orderId: "cmemm75h5001jtat89016h1p3", productId: "cmemlydnx0017tat8h3rg92hz", quantity: 1, price: 89, product: productDummyData[0], },
-            { orderId: "cmemm75h5001jtat89016h1p3", productId: "cmemlxgnk0015tat84qm8si5v", quantity: 1, price: 149, product: productDummyData[1], }
-        ],
-        address: addressDummyData,
-        user: dummyUserData
+            { orderId: "cmemm75h5001jtat89016h1p3", productId: "cmemlydnx0017tat8h3rg92hz", quantity: 1, price: 89 },
+            { orderId: "cmemm75h5001jtat89016h1p3", productId: "cmemlxgnk0015tat84qm8si5v", quantity: 1, price: 149 }
+        ]
     },
     {
         id: "cmemm6jv7001htat8vmm3gxaf",
@@ -315,12 +111,10 @@ export const orderDummyData = [
         isCouponUsed: true,
         coupon: couponDummyData[0],
         orderItems: [
-            { orderId: "cmemm6jv7001htat8vmm3gxaf", productId: "cmemm1f3y001dtat8liccisar", quantity: 1, price: 229, product: productDummyData[2], },
-            { orderId: "cmemm6jv7001htat8vmm3gxaf", productId: "cmemm0nh2001btat8glfvhry1", quantity: 1, price: 99, product: productDummyData[3], },
-            { orderId: "cmemm6jv7001htat8vmm3gxaf", productId: "cmemlz8640019tat8kz7emqca", quantity: 1, price: 199, product: productDummyData[4], }
-        ],
-        address: addressDummyData,
-        user: dummyUserData
+            { orderId: "cmemm6jv7001htat8vmm3gxaf", productId: "cmemm1f3y001dtat8liccisar", quantity: 1, price: 229 },
+            { orderId: "cmemm6jv7001htat8vmm3gxaf", productId: "cmemm0nh2001btat8glfvhry1", quantity: 1, price: 99 },
+            { orderId: "cmemm6jv7001htat8vmm3gxaf", productId: "cmemlz8640019tat8kz7emqca", quantity: 1, price: 199 }
+        ]
     }
 ]
 
@@ -384,9 +178,4 @@ export const dummyAdminDashboardData = {
     ]
 }
 
-export const dummyStoreDashboardData = {
-    "ratings": dummyRatingsData,
-    "totalOrders": 2,
-    "totalEarnings": 636,
-    "totalProducts": 5
-}
+// dummyStoreDashboardData removed — use API-driven data from /api/store/dashboard instead

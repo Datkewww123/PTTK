@@ -18,15 +18,22 @@ export async function GET(request) {
       where: {
         status: 'approved'
       },
-      include: {
-        user: true
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        contact: true,
+        status: true,
+        isActive: true,
+        user: { select: { id: true, name: true, email: true } }
       }
     });
 
     return NextResponse.json({ stores });
     
   } catch (error) {
-
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 400 });
+    console.error('ADMIN_STORES_GET_ERROR', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
